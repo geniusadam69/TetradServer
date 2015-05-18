@@ -16,7 +16,6 @@ import net.ClientMessageType;
 import net.GameBundler;
 import net.ServerMessageType;
 import server.ConnectionAdapterHTTP;
-import server.TetradServer;
 
 /**
  *

@@ -8,6 +8,7 @@ package servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Queue;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.Bundle;
 import net.GameBundler;
+import server.PlayerNetworker;
+import server.PlayerServiceNetworkAdapterHTTP;
+import server.TetradServer;
 
 /**
  *
@@ -22,6 +26,7 @@ import net.GameBundler;
  */
 @WebServlet(name = "Player", urlPatterns = {"/Player"})
 public class Player extends HttpServlet {
+    private final TetradServer SERVER = TetradServer.getInstance();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,7 +43,13 @@ public class Player extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             Map<String, String[]> parameters = request.getParameterMap();
             Bundle b = GameBundler.mapToBundle(parameters);
-        }
+            long token = Long.parseLong(b.getString("Token"));
+            PlayerNetworker networker = 
+            SERVER.getPlayerService(token);
+            networker.receiveMessage(b);
+            Queue<Bundle> q = ((PlayerServiceNetworkAdapterHTTP) networker.getPSNA()).getMessages();
+            out.print(GameBundler.bundleToResponse(q));
+        } 
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
